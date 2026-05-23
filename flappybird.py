@@ -6,7 +6,7 @@ pygame.display.set_caption("WELCOME TO THE FLAPPY BIRD GAME, HOW FAR CAN YOU GO.
 
 bg=pygame.image.load("bg1.png")
 ground=pygame.image.load("groundbg2.png")
-button=pygame.image.load("restartbutton.png")
+buttons=pygame.image.load("restartbutton.png")
 pipefreq=1500
 lastpipe=pygame.time.get_ticks()-pipefreq
 flying=False
@@ -39,7 +39,7 @@ class birds(pygame.sprite.Sprite):
                 self.rect.y+=self.velocity
         if gameover==False:
             if pygame.mouse.get_pressed()[0]==1:
-                self.velocity=-8
+                self.velocity=-5
             self.counter+=1
             if self.counter>5:
                 self.counter=0
@@ -64,12 +64,31 @@ class pipes(pygame.sprite.Sprite):
         if self.rect.right<0:
             self.kill()
 
+class button():
+    def __init__(self,x,y,image):
+        self.image=image
+        self.rect=self.image.get_rect()
+        self.rect.topleft=(x,y)
+    def draw(self):
+        action=False
+        pos=pygame.mouse.get_pos()
+        
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0]==1:
+                action=True
+        #drawbutton
+        screen.blit(self.image,(self.rect.x, self.rect.y))
+        return action
+
+
 
 groundscroll=0
 birdgroup=pygame.sprite.Group()
 angrybird=birds(50,450)
 pipegroup=pygame.sprite.Group()
 birdgroup.add(angrybird)
+
+restart=button(432,425,buttons)
 
 while True:
     clock.tick(60)
@@ -112,11 +131,21 @@ while True:
             pipegroup.add(bottompipe)
             pipegroup.add(toppipe)
             lastpipe=timenow
+
         pipegroup.update()
+
 
         groundscroll-=4
 
         if groundscroll<-36:
             groundscroll=0
+    if gameover==True:
+        if restart.draw():
+            gameover=False
+            pipegroup.empty()
+            angrybird.rect.x=50
+            angrybird.rect.y=450
+            score=0
+            
 
     pygame.display.update()
